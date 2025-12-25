@@ -1,0 +1,47 @@
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class EcommerceScraper {
+
+    public static void main(String[] args) {
+
+        String url = "https://books.toscrape.com/";
+
+        try {
+            // Connect to website
+            Document doc = Jsoup.connect(url).get();
+
+            // Select all products
+            Elements products = doc.select("article.product_pod");
+
+            // Create CSV file
+            FileWriter csvWriter = new FileWriter("products.csv");
+            csvWriter.append("Product Name,Price,Rating\n");
+
+            // Extract product details
+            for (Element product : products) {
+
+                String name = product.select("h3 a").attr("title");
+                String price = product.select("p.price_color").text();
+                String rating = product.select("p.star-rating").attr("class").split(" ")[1];
+
+                csvWriter.append(name).append(",");
+                csvWriter.append(price).append(",");
+                csvWriter.append(rating).append("\n");
+            }
+
+            csvWriter.flush();
+            csvWriter.close();
+
+            System.out.println("Product data extracted successfully into products.csv");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
